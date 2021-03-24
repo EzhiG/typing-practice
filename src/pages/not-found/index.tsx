@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "@reach/router";
 import { Result } from "antd";
 import type { RouteComponentProps } from "@reach/router";

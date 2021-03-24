@@ -1,12 +1,13 @@
+import React from 'react';
 import useOperations from "../../hooks/use-operations";
 import { Operation } from "../../entities/operation";
 import { Dropdown, Menu } from "antd";
 import { UserOutlined, DownOutlined } from "@ant-design/icons";
-import type { User } from "../../entities/user";
+import type { User, PermittedUser } from "../../entities/user";
 
 type ActionsProps = {
   user: User;
-  currentUser: User;
+  currentUser: PermittedUser;
   onAction: (action: Operation) => void;
 };
 
@@ -26,8 +27,8 @@ export default function Actions({ user, currentUser, onAction }: ActionsProps) {
     </Menu>
   );
   return (
-    <Dropdown overlay={menu} trigger={["click"]}>
-      <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
+    <Dropdown disabled={operations.length === 0} overlay={menu} trigger={["click"]}>
+      <a href="#" className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
         Action <DownOutlined />
       </a>
     </Dropdown>

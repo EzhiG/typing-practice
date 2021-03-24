@@ -1,3 +1,4 @@
+import React from "react";
 import "./styles.css";
 import Page from "../base";
 import Name from "./name";

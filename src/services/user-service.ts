@@ -3,7 +3,7 @@ import { Admin } from "../entities/admin";
 import { Client } from "../entities/client";
 import { Moderator } from "../entities/moderator";
 import { Operation } from "../entities/operation";
-import type { User } from "../entities/user";
+import type { PermittedUser, User } from "../entities/user";
 import type { RoleToUser } from "../entities/role-to-user";
 
 export default class UserService {
@@ -34,15 +34,33 @@ export default class UserService {
     return this.users;
   }
 
-  getAvailableOperations(user: User, currenUser: User): Operation[] {
-    // Вам нужно поменять логику внутри getAvailableOperations для того, что бы это работало с логином
-    throw new Error("Not Implemented")
-    // if (user instanceof Admin || user instanceof Client) {
-    //   return [Operation.UPDATE_TO_MODERATOR];
-    // }
+  getAvailableOperations(user: User, currentUser: PermittedUser): Operation[] {
+    if (currentUser instanceof Moderator) {
+      return this.getModeratorAvailableOperations(user);
+    }
 
-    // return [Operation.UPDATE_TO_CLIENT, Operation.UPDATE_TO_ADMIN];
+    return this.getAdminAvailableOperations(user);
   }
+
+  private getModeratorAvailableOperations(user: User): Operation[] {
+    if (user instanceof Admin) {
+      return [];
+    }
+
+    if (user instanceof Client) {
+      return [Operation.UPDATE_TO_MODERATOR];
+    }
+
+    return [Operation.UPDATE_TO_CLIENT];
+  };
+
+  private getAdminAvailableOperations(user: User): Operation[] {
+    if (user instanceof Admin || user instanceof Client) {
+      return [Operation.UPDATE_TO_MODERATOR];
+    }
+
+    return [Operation.UPDATE_TO_CLIENT, Operation.UPDATE_TO_ADMIN];
+  };
 
   getConstructorByRole(role: Role) {
     switch (role) {

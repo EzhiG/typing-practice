@@ -1,7 +1,7 @@
+import React, { ReactNode } from "react";
+import { Layout } from "antd";
 import "./styles.css";
 import Sider from "../../components/sider";
-import { Layout } from "antd";
-import type { ReactNode } from "react";
 
 type PageProps = {
   children: ReactNode;

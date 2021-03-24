@@ -1,15 +1,15 @@
 import UserService from './user-service';
-import { User } from '../entities/user';
+import { PermittedUser, User } from '../entities/user';
 import { Admin } from '../entities/admin';
 import { Moderator } from '../entities/moderator';
 import or from '../utils/or';
 
 export default class LoginService {
-  private loggedInUser: Admin | Moderator | null = null;
+  private loggedInUser: PermittedUser | null = null;
 
   constructor(private readonly userService: UserService) {}
 
-  public async login(email: string, password: string): Promise<Admin | Moderator> {
+  public async login(email: string, password: string): Promise<PermittedUser> {
     const candidate = await this.getUserByCredentials(email, password);
     this.checkUserRights(candidate);
     this.loggedInUser = candidate;
@@ -17,7 +17,7 @@ export default class LoginService {
     return this.loggedInUser;
   }
 
-  private checkUserRights(user: User): asserts user is Admin | Moderator {
+  private checkUserRights(user: User): asserts user is PermittedUser {
     const adminOrModerator = or(Admin, Moderator);
     adminOrModerator(user);
   }

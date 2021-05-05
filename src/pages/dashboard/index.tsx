@@ -1,4 +1,5 @@
 import React from "react";
+import { navigate } from "@reach/router";
 import "./styles.css";
 import Page from "../base";
 import Name from "./name";
@@ -9,10 +10,15 @@ import useCurrentUser from "../../hooks/use-current-user";
 import { Table, Breadcrumb } from "antd";
 import type { User } from "../../entities/user";
 import type { RouteComponentProps } from "@reach/router";
+import { Client } from '../../entities/client';
 
 export default function Dashboard(_: RouteComponentProps) {
   const currentUser = useCurrentUser();
   const [users, onUserUpdates] = useUsers();
+
+  if (currentUser instanceof Client) {
+    navigate('/login');
+  }
 
   const columns = [
     {

@@ -2,9 +2,11 @@ import { Role } from "../entities/role";
 import { Admin } from "../entities/admin";
 import { Client } from "../entities/client";
 import { Moderator } from "../entities/moderator";
-import { Operation } from "../entities/operation";
-import type { PermittedUser, User } from "../entities/user";
+import type { AuthorityUser, User } from "../entities/user";
 import type { RoleToUser } from "../entities/role-to-user";
+import { AVAILABLE_OPERATIONS } from '../entities/available-operations';
+import type { AvailableOperationsByUser } from '../entities/available-operations';
+import or from '../utils/or';
 
 export default class UserService {
   private users: readonly User[] = [];
@@ -34,33 +36,18 @@ export default class UserService {
     return this.users;
   }
 
-  getAvailableOperations(user: User, currentUser: PermittedUser): Operation[] {
-    if (currentUser instanceof Moderator) {
-      return this.getModeratorAvailableOperations(user);
-    }
-
-    return this.getAdminAvailableOperations(user);
-  }
-
-  private getModeratorAvailableOperations(user: User): Operation[] {
-    if (user instanceof Admin) {
+  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU) {
+    try {
+      const authorityUser = or(Admin, Moderator)(currentUser);
+      return this.getAuthorityAvailableOperations(user, authorityUser);
+    } catch {
       return [];
     }
+  }
 
-    if (user instanceof Client) {
-      return [Operation.UPDATE_TO_MODERATOR];
-    }
-
-    return [Operation.UPDATE_TO_CLIENT];
-  };
-
-  private getAdminAvailableOperations(user: User): Operation[] {
-    if (user instanceof Admin || user instanceof Client) {
-      return [Operation.UPDATE_TO_MODERATOR];
-    }
-
-    return [Operation.UPDATE_TO_CLIENT, Operation.UPDATE_TO_ADMIN];
-  };
+  private getAuthorityAvailableOperations<U extends User, A extends AuthorityUser>(user: User, authorityUser: A): AvailableOperationsByUser<A, U> {
+    return AVAILABLE_OPERATIONS[authorityUser.role][user.role];
+  }
 
   getConstructorByRole(role: Role) {
     switch (role) {

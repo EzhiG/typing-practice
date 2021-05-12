@@ -37,15 +37,11 @@ export default class UserService {
   }
 
   getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU) {
-    try {
-      const authorityUser = or(Admin, Moderator)(currentUser);
-      return this.getAuthorityAvailableOperations(user, authorityUser);
-    } catch {
-      return [];
-    }
+    const authorityUser = or(Admin, Moderator)(currentUser);
+    return this.getAuthorityAvailableOperations(user, authorityUser);
   }
 
-  private getAuthorityAvailableOperations<U extends User, A extends AuthorityUser>(user: User, authorityUser: A): AvailableOperationsByUser<A, U> {
+  private getAuthorityAvailableOperations<U extends User, A extends AuthorityUser>(user: U, authorityUser: A): AvailableOperationsByUser<A, U> {
     return AVAILABLE_OPERATIONS[authorityUser.role][user.role];
   }
 

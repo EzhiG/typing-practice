@@ -1,19 +1,17 @@
-import { StringLiteral } from './string-literal';
-
-export class Password extends StringLiteral {
-  static of(value: StringLiteral): Password {
+export class Password {
+  static of(value: any): Password {
     if (value instanceof Password) {
       return value;
     }
     throw new TypeError("value is not an instance of Password!");
   }
 
-  private static validate(value: string): boolean {
-    return value.length > 3;
+  private static validate(value: any): value is string {
+    return typeof value === 'string' && value.length > 3;
   }
 
   static from(value: any): Password {
-    if (StringLiteral.is(value) && this.validate(value)) {
+    if (this.validate(value)) {
       return new Password(value);
     }
     throw new TypeError("value is not a password!");
@@ -21,7 +19,5 @@ export class Password extends StringLiteral {
 
   private readonly _type = Symbol("Password");
 
-  protected constructor(value: string) {
-    super(value);
-  }
+  protected constructor(public readonly value: string) {}
 }

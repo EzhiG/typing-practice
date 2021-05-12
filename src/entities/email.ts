@@ -1,22 +1,20 @@
-import { StringLiteral } from './string-literal';
-
-export class Email extends StringLiteral {
+export class Email {
   private static pattern = /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/;
 
-  static of(value: StringLiteral): Email {
+  static of(value: any): Email {
     if (value instanceof Email) {
       return value;
     }
     throw new TypeError("value is not an instance of Email!");
   }
 
-  private static validate(value: string): boolean {
-    return this.pattern.test(value);
+  private static validate(value: any): value is string {
+    return typeof value === 'string' && this.pattern.test(value);
   }
 
 
   static from(value: any): Email {
-    if (StringLiteral.is(value) && this.validate(value)) {
+    if (this.validate(value)) {
       return new Email(value);
     }
     throw new TypeError("value is not an email!");
@@ -24,7 +22,5 @@ export class Email extends StringLiteral {
 
   private readonly _type = Symbol("Email");
 
-  protected constructor(value: string) {
-    super(value);
-  }
+  protected constructor(public readonly value: string) {}
 }

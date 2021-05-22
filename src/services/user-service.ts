@@ -4,6 +4,8 @@ import { Client } from "../entities/client";
 import { Moderator } from "../entities/moderator";
 import type { AuthorityUser, User } from "../entities/user";
 import type { RoleToUser } from "../entities/role-to-user";
+import { Page } from '../entities/page';
+import { AVAILABLE_PAGES, AvailablePagesByRole } from '../entities/available-pages';
 import { AVAILABLE_OPERATIONS } from '../entities/available-operations';
 import type { AvailableOperationsByUser } from '../entities/available-operations';
 import or from '../utils/or';
@@ -36,13 +38,21 @@ export default class UserService {
     return this.users;
   }
 
-  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU) {
-    const authorityUser = or(Admin, Moderator)(currentUser);
-    return this.getAuthorityAvailableOperations(user, authorityUser);
+  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU): AvailableOperationsByUser<AuthorityUser, U> {
+    try {
+      const authorityUser = or(Admin, Moderator)(currentUser);
+      return AVAILABLE_OPERATIONS[authorityUser.role][user.role];
+    } catch {
+      return [];
+    }
   }
 
-  private getAuthorityAvailableOperations<U extends User, A extends AuthorityUser>(user: U, authorityUser: A): AvailableOperationsByUser<A, U> {
-    return AVAILABLE_OPERATIONS[authorityUser.role][user.role];
+  getAvailablePages<U extends User>(user: U): AvailablePagesByRole<U> {
+    return AVAILABLE_PAGES[user.role];
+  }
+
+  isPageAvailableForUser<U extends User, P extends Page>(user: U, page: P): boolean {
+    return this.getAvailablePages(user).includes(page);
   }
 
   getConstructorByRole(role: Role) {

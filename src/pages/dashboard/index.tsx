@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./styles.css";
-import Page from "../base";
+import PageWrapper from "../base";
 import Name from "./name";
 import Role from "./role";
 import Actions from "./actions";
 import useUsers from "../../hooks/use-users";
 import useCurrentUser from "../../hooks/use-current-user";
-import { Table, Breadcrumb } from "antd";
+import Services from '../../services';
+import { Page } from "../../entities/page";
+import { Breadcrumb, Table } from "antd";
 import type { User } from "../../entities/user";
-import type { RouteComponentProps } from "@reach/router";
+import { navigate, RouteComponentProps } from "@reach/router";
 
 export default function Dashboard(_: RouteComponentProps) {
+  const { userService } = useContext(Services);
   const currentUser = useCurrentUser();
   const [users, onUserUpdates] = useUsers();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  if (!userService.isPageAvailableForUser(currentUser, Page.DASHBOARD)) {
+    navigate(Page.LOGIN);
+  }
 
   const columns = [
     {
@@ -41,13 +52,13 @@ export default function Dashboard(_: RouteComponentProps) {
   ];
 
   return (
-    <Page>
+    <PageWrapper>
       <Breadcrumb style={{ margin: "16px 0" }}>
         <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
       </Breadcrumb>
       <div className="site-layout-background content-container">
         <Table rowKey="id" columns={columns} dataSource={users} />
       </div>
-    </Page>
+    </PageWrapper>
   );
 }

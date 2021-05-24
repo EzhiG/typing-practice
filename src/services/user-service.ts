@@ -2,13 +2,14 @@ import { Role } from "../entities/role";
 import { Admin } from "../entities/admin";
 import { Client } from "../entities/client";
 import { Moderator } from "../entities/moderator";
-import type { AuthorityUser, User } from "../entities/user";
+import type { User } from "../entities/user";
+import { Email } from '../entities/email';
+import { Password } from '../entities/password';
 import type { RoleToUser } from "../entities/role-to-user";
 import { Page } from '../entities/page';
 import { AVAILABLE_PAGES, AvailablePagesByRole } from '../entities/available-pages';
 import { AVAILABLE_OPERATIONS } from '../entities/available-operations';
 import type { AvailableOperationsByUser } from '../entities/available-operations';
-import or from '../utils/or';
 
 export default class UserService {
   private users: readonly User[] = [];
@@ -25,6 +26,17 @@ export default class UserService {
     return this.users;
   }
 
+  async getUserByCredentials(email: Email, password: Password): Promise<User> {
+    const users = await this.getAllUsers();
+    const candidate = users.find(u => (u.email === email.value && u.password === password.value));
+
+    if (!candidate) {
+      throw new Error("User not found");
+    }
+
+    return candidate;
+  }
+
   private fetch(): Promise<any> {
     return import("../mocks/users.json");
   }
@@ -38,13 +50,8 @@ export default class UserService {
     return this.users;
   }
 
-  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU): AvailableOperationsByUser<AuthorityUser, U> {
-    try {
-      const authorityUser = or(Admin, Moderator)(currentUser);
-      return AVAILABLE_OPERATIONS[authorityUser.role][user.role];
-    } catch {
-      return [];
-    }
+  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU): AvailableOperationsByUser<CU, U> {
+    return AVAILABLE_OPERATIONS[currentUser.role][user.role];
   }
 
   getAvailablePages<U extends User>(user: U): AvailablePagesByRole<U> {

@@ -7,18 +7,7 @@ export default class LoginService {
   constructor(private readonly userService: UserService) {}
 
   public async login(email: Email, password: Password): Promise<User> {
-    return await this.getUserByCredentials(email, password);
-  }
-
-  private async getUserByCredentials(email: Email, password: Password): Promise<User> {
-    const users = await this.userService.getAllUsers();
-    const candidate = users.find(u => (u.email === email.value && u.password === password.value));
-
-    if (!candidate) {
-      throw new Error("User not found");
-    }
-
-    return candidate;
+    return await this.userService.getUserByCredentials(email, password);
   }
 
   public async logout(): Promise<void> {

@@ -2,9 +2,14 @@ import { Role } from "../entities/role";
 import { Admin } from "../entities/admin";
 import { Client } from "../entities/client";
 import { Moderator } from "../entities/moderator";
-import { Operation } from "../entities/operation";
 import type { User } from "../entities/user";
+import { Email } from '../entities/email';
+import { Password } from '../entities/password';
 import type { RoleToUser } from "../entities/role-to-user";
+import { Page } from '../entities/page';
+import { AVAILABLE_PAGES, AvailablePagesByRole } from '../entities/available-pages';
+import { AVAILABLE_OPERATIONS } from '../entities/available-operations';
+import type { AvailableOperationsByUser } from '../entities/available-operations';
 
 export default class UserService {
   private users: readonly User[] = [];
@@ -21,6 +26,17 @@ export default class UserService {
     return this.users;
   }
 
+  async getUserByCredentials(email: Email, password: Password): Promise<User> {
+    const users = await this.getAllUsers();
+    const candidate = users.find(u => (u.email === email.value && u.password === password.value));
+
+    if (!candidate) {
+      throw new Error("User not found");
+    }
+
+    return candidate;
+  }
+
   private fetch(): Promise<any> {
     return import("../mocks/users.json");
   }
@@ -34,14 +50,16 @@ export default class UserService {
     return this.users;
   }
 
-  getAvailableOperations(user: User, currenUser: User): Operation[] {
-    // Вам нужно поменять логику внутри getAvailableOperations для того, что бы это работало с логином
-    throw new Error("Not Implemented")
-    // if (user instanceof Admin || user instanceof Client) {
-    //   return [Operation.UPDATE_TO_MODERATOR];
-    // }
+  getAvailableOperations<U extends User, CU extends User>(user: U, currentUser: CU): AvailableOperationsByUser<CU, U> {
+    return AVAILABLE_OPERATIONS[currentUser.role][user.role];
+  }
 
-    // return [Operation.UPDATE_TO_CLIENT, Operation.UPDATE_TO_ADMIN];
+  getAvailablePages<U extends User>(user: U): AvailablePagesByRole<U> {
+    return AVAILABLE_PAGES[user.role];
+  }
+
+  isPageAvailableForUser<U extends User, P extends Page>(user: U, page: P): boolean {
+    return this.getAvailablePages(user).includes(page);
   }
 
   getConstructorByRole(role: Role) {

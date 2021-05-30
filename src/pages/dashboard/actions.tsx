@@ -1,3 +1,4 @@
+import React from 'react';
 import useOperations from "../../hooks/use-operations";
 import { Operation } from "../../entities/operation";
 import { Dropdown, Menu } from "antd";
@@ -12,9 +13,14 @@ type ActionsProps = {
 
 export default function Actions({ user, currentUser, onAction }: ActionsProps) {
   const operations = useOperations(user, currentUser);
+
+  if (!operations) {
+    return null;
+  }
+
   const menu = (
     <Menu>
-      {operations.map((operation, key) => (
+      {operations.map((operation: Operation, key: number) => (
         <Menu.Item
           key={key}
           icon={<UserOutlined />}
@@ -26,8 +32,8 @@ export default function Actions({ user, currentUser, onAction }: ActionsProps) {
     </Menu>
   );
   return (
-    <Dropdown overlay={menu} trigger={["click"]}>
-      <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
+    <Dropdown disabled={operations.length === 0} overlay={menu} trigger={["click"]}>
+      <a href="#" className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
         Action <DownOutlined />
       </a>
     </Dropdown>

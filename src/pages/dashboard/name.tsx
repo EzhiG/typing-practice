@@ -1,3 +1,4 @@
+import React from 'react';
 import getColorForName from "name-to-color";
 import { Avatar, Space } from "antd";
 

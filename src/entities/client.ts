@@ -1,5 +1,4 @@
 import { Role } from "./role";
-import { Operation } from "../entities/operation";
 import { AccountInfo } from "./account-info";
 import type { User } from "./user";
 

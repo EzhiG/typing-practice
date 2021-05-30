@@ -1,8 +1,6 @@
 import { Role } from "../entities/role";
-import { Admin } from "../entities/admin";
-import { Client } from "../entities/client";
-import { Moderator } from "../entities/moderator";
-import type { User } from "../entities/user";
+import { User } from "../entities/user";
+import { castTo } from "../entities/role-to-user";
 import { Email } from '../entities/email';
 import { Password } from '../entities/password';
 import type { RoleToUser } from "../entities/role-to-user";
@@ -19,10 +17,7 @@ export default class UserService {
       return this.users;
     }
     const response = await this.fetch();
-    this.users = response.default.map((u: any) => {
-      const User = this.getConstructorByRole(u.role);
-      return User.from(u);
-    });
+    this.users = response.default.map((u: any) => User.check(u));
     return this.users;
   }
 
@@ -42,11 +37,11 @@ export default class UserService {
   }
 
   async updateUserRole<R extends Role>(
-    user: Readonly<RoleToUser[R]>,
+    user: RoleToUser[R],
     newRole: R
   ) {
-    const User = this.getConstructorByRole(newRole);
-    this.users = this.users.map((u) => (u.id === user.id ? User.from(u) : u));
+    const newUser = castTo(newRole, user);
+    this.users = this.users.map((u) => (u.id === user.id ? newUser : u));
     return this.users;
   }
 
@@ -60,16 +55,5 @@ export default class UserService {
 
   isPageAvailableForUser<U extends User, P extends Page>(user: U, page: P): boolean {
     return this.getAvailablePages(user).includes(page);
-  }
-
-  getConstructorByRole(role: Role) {
-    switch (role) {
-      case Role.ADMIN:
-        return Admin;
-      case Role.CLIENT:
-        return Client;
-      case Role.MODERATOR:
-        return Moderator;
-    }
   }
 }

@@ -1,6 +1,6 @@
 import { Role } from "./role";
 import { Operation } from "./operation";
-import type { AuthorityUser, User } from "./user";
+import { User } from "./user";
 
 export const AVAILABLE_OPERATIONS = {
   [Role.ADMIN]: {

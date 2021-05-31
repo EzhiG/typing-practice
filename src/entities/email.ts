@@ -1,26 +1,11 @@
-export class Email {
-  private static pattern = /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/;
+import * as t from 'runtypes';
 
-  static of(value: any): Email {
-    if (value instanceof Email) {
-      return value;
-    }
-    throw new TypeError("value is not an instance of Email!");
-  }
+const PATTERN = /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/;
+const PLACEHOLDER = '#value#';
+const ERROR_MESSAGE = `"${PLACEHOLDER}" is not an email!`;
 
-  private static validate(value: any): value is string {
-    return typeof value === 'string' && this.pattern.test(value);
-  }
+export const Email = t.String
+  .withBrand('Email')
+  .withConstraint(value => PATTERN.test(value) || ERROR_MESSAGE.replace(PLACEHOLDER, value));
 
-
-  static from(value: any): Email {
-    if (this.validate(value)) {
-      return new Email(value);
-    }
-    throw new TypeError("value is not an email!");
-  }
-
-  private readonly _type = Symbol("Email");
-
-  protected constructor(public readonly value: string) {}
-}
+export type Email = t.Static<typeof Email>;

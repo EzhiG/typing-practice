@@ -5,6 +5,7 @@ import { LogedInActionType, LogedInUser } from "../providers/loged-in-user";
 import type { User } from "../entities/user";
 import { Email } from '../entities/email';
 import { Password } from '../entities/password';
+import { Page } from '../entities/page';
 
 export type Credentials = {
   email: string;
@@ -20,9 +21,9 @@ export default function useLogin(credentials: Credentials | null): User | null {
       return;
     }
     try {
-      loginService.login(Email.from(credentials.email), Password.from(credentials.password))
+      loginService.login(Email.check(credentials.email), Password.check(credentials.password))
         .then((user: User) => dispatch!({ type: LogedInActionType.LOG_IN, payload: user }))
-        .then(() => navigate("/"))
+        .then(() => navigate(Page.DASHBOARD))
         .catch(e => alert(e.message));
     } catch(err) {
       alert(err.message);

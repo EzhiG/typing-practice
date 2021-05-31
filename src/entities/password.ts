@@ -1,23 +1,10 @@
-export class Password {
-  static of(value: any): Password {
-    if (value instanceof Password) {
-      return value;
-    }
-    throw new TypeError("value is not an instance of Password!");
-  }
+import * as t from 'runtypes';
 
-  private static validate(value: any): value is string {
-    return typeof value === 'string' && value.length > 3;
-  }
+const MIN_LENGTH = 3;
+const ERROR_MESSAGE = `password length should be more than ${MIN_LENGTH}`;
 
-  static from(value: any): Password {
-    if (this.validate(value)) {
-      return new Password(value);
-    }
-    throw new TypeError("value is not a password!");
-  }
+export const Password = t.String
+  .withBrand('Password')
+  .withConstraint(value => value.length > MIN_LENGTH || ERROR_MESSAGE);
 
-  private readonly _type = Symbol("Password");
-
-  protected constructor(public readonly value: string) {}
-}
+export type Password = t.Static<typeof Password>;

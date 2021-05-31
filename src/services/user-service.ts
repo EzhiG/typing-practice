@@ -23,7 +23,7 @@ export default class UserService {
 
   async getUserByCredentials(email: Email, password: Password): Promise<User> {
     const users = await this.getAllUsers();
-    const candidate = users.find(u => (u.email === email.value && u.password === password.value));
+    const candidate = users.find(u => (u.email === email && u.password === password));
 
     if (!candidate) {
       throw new Error("User not found");
